@@ -11,5 +11,6 @@
   + [ffplay使用指南](./src/A_FFplay使用指南.md)
   + [ffprobe使用指南](./src/C_FFprobe使用指南.md)
 + 基于ffmpeg的开发
+  + [ffmpeg-tutorial](https://github.com/feixiao/ffmpeg-tutorial)
 + 源码分析
 
