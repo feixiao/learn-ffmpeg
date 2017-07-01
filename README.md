@@ -19,5 +19,5 @@
 
 + 源码分析
   
-  + [ffmpeg/ffplay源码剖析](http://www.cnblogs.com/mcodec/articles/1933754.html)
+  + [ffmpeg/ffplay源码剖析](https://github.com/feixiao/ffsrc)
   + [基于ffmpeg-2.8.11的源码分析](https://github.com/feixiao/ffmpeg-2.8.11)
