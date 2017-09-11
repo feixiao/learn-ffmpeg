@@ -21,3 +21,8 @@
   
   + [ffmpeg/ffplay源码剖析](https://github.com/feixiao/ffsrc)
   + [基于ffmpeg-2.8.11的源码分析](https://github.com/feixiao/ffmpeg-2.8.11)
+
+
++ 安装
+
+  + [How to Install FFMPEG 3.1.3 in Ubuntu 16.04 via PPA](http://ubuntuhandbook.org/index.php/2016/09/install-ffmpeg-3-1-ubuntu-16-04-ppa/)
