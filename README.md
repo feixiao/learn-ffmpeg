@@ -20,6 +20,7 @@
 
 ### 源码分析
 + [ffmpeg/ffplay源码剖析](https://github.com/feixiao/ffsrc)
++ [ijkplayer源码分析](https://gitee.com/frank2020/ijkplayer) 
 + [基于ffmpeg-2.8.11的源码分析](https://github.com/feixiao/ffmpeg-2.8.11)
 
 
