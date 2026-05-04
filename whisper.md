@@ -64,25 +64,76 @@ curl -L https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
 ```
 常见的模型有：`tiny`, `base`, `small`, `medium`, `large-v3`。
 
-### 基本转录命令
-使用 `whisper` 滤镜进行转录。注意 `model` 参数需要指向你真实的 `.bin` 文件路径（推荐使用绝对路径）：
+### 基本转录命令 (在控制台查看)
+使用 `whisper` 滤镜进行转录。如果你不指定 `destination`，转录结果通常会直接输出到控制台（注意：这取决于 FFmpeg 的日志级别，且需要音频中有清晰的语音）：
 
 ```bash
 # 如果模型在当前目录
 ffmpeg -i input.mp4 -af "whisper=model=ggml-small.bin:language=zh" -f null -
 
 # 如果模型在其他目录（推荐）
-ffmpeg -i input.mp4 -af "whisper=model=/Users/你的用户名/models/whisper/ggml-small.bin:language=zh" -f null -
+ffmpeg -i input.mp4 -af "whisper=model=/Users/frank/models/whisper/ggml-small.bin:language=zh" -f null -
 ```
 
-### 提取字幕 (SRT)
-如果你想直接通过 FFmpeg 生成字幕文件：
+### 提取字幕 (SRT/JSON/TXT)
+如果你想将转录结果保存到文件中，必须在滤镜参数中使用 `destination` 和 `format`：
+
 ```bash
-ffmpeg -i input.mp4 -af "whisper=model=ggml-small.bin:language=zh" output.srt
+# 生成 SRT 字幕文件
+ffmpeg -i input.mp4 -af "whisper=model=ggml-small.bin:language=zh:destination=output.srt:format=srt" -f null -
+
+# 生成 JSON 格式 (包含时间戳和概率)
+ffmpeg -i input.mp4 -af "whisper=model=ggml-small.bin:language=zh:destination=output.json:format=json" -f null -
 ```
+
+> [!CAUTION]
+> 注意：不能直接使用 `ffmpeg -i ... output.srt`，因为 `whisper` 是音频滤镜，它不输出字幕流，而是通过内置参数直接写文件。
 
 > [!IMPORTANT]
 > FFmpeg 8.0 的 `whisper` 滤镜具体参数可以通过 `ffmpeg -h filter=whisper` 查看。
+
+### 进阶：直接合成字幕到视频
+由于 `whisper` 是音频滤镜，无法在一次处理中直接改变视频像素。我们可以使用 `&&` 将转录和合成命令串联起来。
+
+#### 1. 硬字幕合成 (将字幕压制在画面上)
+这种方式会将字幕变成视频画面的一部分。需要重编码视频，速度较慢，但兼容性最强。
+
+```bash
+# 自动生成并压制硬字幕 (注意：macOS 上建议对文件名加单引号)
+ffmpeg -i input.mp4 -af "whisper=model=ggml-small.bin:language=zh:destination=sub.srt:format=srt" -f null - && \
+ffmpeg -i input.mp4 -vf "subtitles='sub.srt'" -c:v libx264 -crf 20 -c:a copy output_hardcode.mp4
+```
+
+> [!TIP]
+> **常见失败原因：**
+> 1. **找不到字幕文件**：确保第一步生成的 `sub.srt` 确实存在。
+> 2. **中文字体缺失**：如果合成后是方块或乱码，可以强制指定中文字体（如 `PingFang SC`）：
+>    `-vf "subtitles='sub.srt':force_style='FontName=PingFang SC'"`
+> 3. **模型路径错误**：确保 `whisper` 滤镜中的 `model` 路径是正确的。
+
+#### 3. 自动化脚本 (推荐)
+为了方便使用，本项目提供了一个名为 `whisper_burn.sh` 的脚本，可以一键完成转录和压制：
+
+```bash
+# 基本用法
+./whisper_burn.sh input.mp4
+
+# 指定模型和语言
+./whisper_burn.sh input.mp4 ~/models/whisper/ggml-medium.bin zh
+```
+该脚本会自动处理 macOS 下的路径转义和字体设置。
+
+#### 4. 软字幕嵌入 (作为可开关的轨道)
+这种方式将 SRT 文件封装进视频容器。不需要重编码视频，速度极快（秒级完成），且字幕可以由播放器开启或关闭。
+
+```bash
+# 自动生成并嵌入软字幕
+ffmpeg -i input.mp4 -af "whisper=model=ggml-small.bin:language=zh:destination=sub.srt:format=srt" -f null - && \
+ffmpeg -i input.mp4 -i sub.srt -c copy -c:s mov_text output_softcode.mp4
+```
+
+> [!TIP]
+> 如果你的输出格式是 MKV，可以将 `-c:s mov_text` 替换为 `-c:s srt` 或 `-c:s ass` 以获得更好的兼容性。
 
 ## 5. 备选方案：通过 whisper-cpp 独立处理
 
