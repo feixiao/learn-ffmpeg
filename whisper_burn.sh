@@ -6,7 +6,7 @@
 # ==============================================================================
 
 INPUT="$1"
-MODEL="${2:-/Users/frank/models/whisper/ggml-medium.bin}"
+MODEL="${2:-/Users/frank/models/whisper/ggml-large-v3.bin}"
 LANG="${3:-zh}"
 
 # 检查输入参数
@@ -46,6 +46,19 @@ ffmpeg -i "$INPUT" -af "whisper=model=$MODEL:language=$LANG:destination=$SRT:for
 if [ $? -ne 0 ]; then
     echo "❌ 错误: 第一步转录失败。"
     exit 1
+fi
+
+# 自动简繁转换 (如果安装了 opencc)
+if command -v opencc >/dev/null 2>&1; then
+    echo "🔄 正在将繁体字幕转换为简体..."
+    opencc -i "$SRT" -o "${SRT}.tmp" -c t2s.json
+    if [ $? -eq 0 ]; then
+        mv "${SRT}.tmp" "$SRT"
+        echo "✅ 字幕已转换为简体。"
+    else
+        echo "⚠️ 警告: OpenCC 转换失败，将使用原字幕。"
+        rm -f "${SRT}.tmp"
+    fi
 fi
 
 # 第二步: 合成
