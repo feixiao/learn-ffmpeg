@@ -36,5 +36,8 @@
 ### RTMP
 + [rtmp](./rtmp.md)
 
+### Whisper
++ [在 macOS 上启用 Whisper 支持](./whisper.md)
+
 ### 工具
 + [Axiom](https://github.com/MattMcManis/Axiom) An FFmpeg GUI for Windows.
