@@ -41,7 +41,7 @@ echo "----------------------------------------------------"
 
 # 第一步: 转录
 echo "🎬 步骤 1/2: 正在提取并生成字幕 ($SRT)..."
-ffmpeg -i "$INPUT" -af "whisper=model=\"$MODEL\":language=$LANG:destination=\"$SRT\":format=srt" -f null - 
+ffmpeg -i "$INPUT" -af "whisper=model=$MODEL:language=$LANG:destination=$SRT:format=srt" -f null - 
 
 if [ $? -ne 0 ]; then
     echo "❌ 错误: 第一步转录失败。"
