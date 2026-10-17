@@ -138,14 +138,81 @@ int main() {
 
 ## 四、主流衍生开源生态与集成路径
 
-### 1. `media-kit`：跨平台 / Flutter 最佳实践
-* **定位**：由国外知名多媒体开发者打造的全平台播放器库（Flutter / Dart）。
-* **底层实现**：
-  * C/C++ 层直接打包集成最新版 FFmpeg 与 `libmpv`。
-  * 将 `mpv_render_context` 挂载到各平台原生纹理机制（Android SurfaceTexture / iOS Metal Texture / Windows D3D11 Texture）。
-  * Flutter UI 层像调用普通 Widget 一样调用播放器组件，兼顾原生最高吞吐与流畅动画。
-* **适用场景**：多端开发首选（一套业务逻辑直接跑通 5 个端）。
+### 1. `media-kit`：Flutter / Dart 全平台工业级播放器
+* **开源组织与仓库**：
+  * GitHub: [media-kit/media-kit](https://github.com/media-kit/media-kit)
+  * 官网文档: [media-kit.dev](https://media-kit.dev)
+  * 官方 Dart/Flutter 包: `package:media_kit`、`package:media_kit_video`
+* **支持平台**：**Android、iOS、macOS、Windows、Linux、Web**（全端覆盖）。
+* **核心架构与工作原理**：
+  * **底层封装**：直接基于最新主线 **FFmpeg** 与 **`libmpv`** 预编译多平台 C 共享库。
+  * **音视频管线**：使用 Dart FFI 高性能直接桥接 `libmpv` 的 C API，彻底跳过了原生平台缓慢的 MethodChannel。
+  * **GPU 纹理渲染**：利用 `mpv_render_context` 将每一帧直接绘制到各操作系统的原生显存共享纹理上：
+    * **Android**：SurfaceTexture / HardwareBuffer
+    * **iOS / macOS**：Metal Texture (`CVPixelBuffer` / `IOSurface`)
+    * **Windows**：Direct3D 11 (`ID3D11Texture2D`)
+    * **Linux**：OpenGL / EGL
+  * **官方模块拆分设计**：
+    * `media_kit`：核心播放控制、状态属性流（Stream API）、音轨/字幕/倍速控制；
+    * `media_kit_video`：UI 渲染组件（`Video` Widget），集成硬件加速与原生 Texture 桥接；
+    * `media_kit_libs_***`：官方针对各平台预编译的动态链接库（免去开发者自行编译 FFmpeg/libmpv 的复杂繁琐流程）。
+* **Flutter 快速上手示例**：
+  ```yaml
+  # pubspec.yaml
+  dependencies:
+    media_kit: ^1.1.10
+    media_kit_video: ^1.2.4
+    # 引入全平台预编译二进制动态库
+    media_kit_libs_video: ^1.0.4
+  ```
+  ```dart
+  import 'package:flutter/material.dart';
+  import 'package:media_kit/media_kit.dart';
+  import 'package:media_kit_video/media_kit_video.dart';
 
+  void main() {
+    WidgetsFlutterBinding.ensureInitialized();
+    // 1. 初始化 native 绑定 (内部加载 libmpv 运行时)
+    MediaKit.ensureInitialized();
+    runApp(const MyApp());
+  }
+
+  class MyPlayerPage extends StatefulWidget {
+    @override
+    State<MyPlayerPage> createState() => _MyPlayerPageState();
+  }
+
+  class _MyPlayerPageState extends State<MyPlayerPage> {
+    late final player = Player();
+    late final controller = VideoController(player);
+
+    @override
+    void initState() {
+      super.initState();
+      // 打开视频 (支持本地文件、网络流 RTSP/RTMP/HLS 等)
+      player.open(Media('https://example.com/live/stream.m3u8'));
+    }
+
+    @override
+    void dispose() {
+      player.dispose();
+      super.dispose();
+    }
+
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        body: Center(
+          // 2. 原生硬解 GPU 纹理直接渲染
+          child: Video(controller: controller),
+        ),
+      );
+    }
+  }
+  ```
+* **为什么推荐它**：
+  * 彻底解决了 Flutter 官方 `video_player` 插件在桌面端支持稀烂、格式支持少（无法播放 MKV/FLV/RMVB/特殊音频编码）的硬伤。
+  * 官方维护了各端（甚至 Android/iOS）的自动构建 CI，直接提供了打磨好的预编译动态库，是目前不想折腾 C/C++ 交叉编译、又想拥有 FFmpeg+mpv 顶级解码渲染能力的最快落地途径。
 ### 2. `mpv-android`：原生 Android 替代 ijkplayer
 * **定位**：`mpv` 针对 Android 的官方移植项目。
 * **技术亮点**：

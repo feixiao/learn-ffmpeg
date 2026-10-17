@@ -69,7 +69,7 @@
 
 | 框架 / 库 | 底层内核 | 支持平台 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **`media-kit`** | `libmpv` (FFmpeg) | Android, iOS, Windows, macOS, Linux, Web | 当前 Flutter / Dart 跨端首选，性能顶尖，无缝利用原生 Texture 渲染 |
+| **[`media-kit`](https://github.com/media-kit/media-kit)** | `libmpv` (FFmpeg) | Android, iOS, Windows, macOS, Linux, Web | 官方组织 [media-kit](https://github.com/media-kit)，当前 Flutter / Dart 跨端首选，性能顶尖，通过 Dart FFI + 原生 Texture 渲染 |
 | **`LibVLCSharp`** | `libvlc` (FFmpeg) | Android, iOS, Windows, macOS, Linux | 针对 .NET / C# / MAUI / Avalonia 的全平台播放方案 |
 | **`fijkplayer`** | ijkplayer (FFmpeg) | Android, iOS | Flutter 早期的 ijkplayer 封装，目前受限于 ijkplayer 停止维护 |
 | **`GSYVideoPlayer`** | 可切换 ijkplayer / ExoPlayer / MediaPlayer | Android | 国内流行度极高的移动端播放器，适合需要多内核动态降级的场景 |
