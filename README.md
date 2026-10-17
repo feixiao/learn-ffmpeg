@@ -18,6 +18,9 @@
 + [ffmpeg基础库编程开发](http://download.csdn.net/detail/czc1009/7028295) 
 + 音视频基础知识介绍、ffmpeg基础库的使用和源码分析。
 
+### 播放器与架构选型
++ [基于 FFmpeg 的主流播放器与跨平台选型指南](./src/D_基于FFmpeg的播放器选型指南.md)
+
 ### 源码分析
 + [ffmpeg/ffplay源码剖析](https://github.com/feixiao/ffsrc)
 + [ijkplayer源码分析](https://gitee.com/frank2020/ijkplayer) 
