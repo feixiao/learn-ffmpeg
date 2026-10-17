@@ -20,6 +20,7 @@
 
 ### 播放器与架构选型
 + [基于 FFmpeg 的主流播放器与跨平台选型指南](./src/D_基于FFmpeg的播放器选型指南.md)
++ [mpv与libmpv架构深度解析与实战](./src/E_mpv与libmpv架构深度解析.md)
 
 ### 源码分析
 + [ffmpeg/ffplay源码剖析](https://github.com/feixiao/ffsrc)
